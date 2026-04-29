@@ -1,0 +1,151 @@
+:root {
+  --base-font-size: 24px;
+  --bg-color: #000000;
+  --text-color: #ffffff;
+  --accent-color: #f8d879; 
+  --bookmark-color: #ff5722; 
+  --plus-btn-color: #4caf50; 
+  --minus-btn-color: #f44336;
+  --container-bg: #111;
+}
+
+body.light-mode {
+  --bg-color: #f4f4f2;
+  --text-color: #1a1a1a;
+  --container-bg: #ffffff;
+  --accent-color: #e6b800;
+}
+
+body {
+  margin: 0; padding: 0;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  font-family: -apple-system, sans-serif;
+  line-height: 1.6;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.page { display: none; padding: 20px; }
+.page.active { display: block; }
+
+.main-title {
+  text-align: center; margin-top: 30px; margin-bottom: 30px; 
+  color: var(--accent-color); font-size: 1.8rem;
+}
+
+/* 라이트 모드일 때 메인 타이틀 색상을 더 어두운 초록색으로 변경 */
+body.light-mode .main-title { color: #2e7d32; }
+
+.section-container {
+  background-color: var(--container-bg);
+  padding: 25px 20px;
+  border-radius: 20px;
+  margin-bottom: 30px;
+  position: relative;
+}
+
+#bookmark-container { border: 2px solid var(--bookmark-color); }
+#selection-container { border: 2px solid var(--accent-color); }
+
+.bookmark-ribbon {
+  position: absolute; top: -5px; left: 15px;
+  width: 24px; height: 35px;
+  background-color: var(--bookmark-color);
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 80%, 0 100%);
+  z-index: 1;
+}
+
+.form-group { margin-bottom: 20px; }
+label { display: block; margin-bottom: 8px; font-weight: bold; color: #777; font-size: 1rem; }
+
+select, button {
+  width: 100%; padding: 18px;
+  font-size: 20px; border-radius: 12px;
+  background: var(--container-bg); color: var(--text-color); border: 1px solid #555;
+  appearance: none;
+}
+
+button#btn-open {
+  background: var(--accent-color); color: black;
+  font-weight: bold; border: none; margin-top: 10px;
+}
+
+.btn-bookmark-go {
+  background-color: var(--bookmark-color) !important;
+  color: black !important;
+  font-weight: bold !important;
+  border: none !important;
+  margin-top: 10px;
+}
+
+/* X 버튼 옅은 회색, 위로 이동, 원 크기 축소 */
+.del-bookmark {
+  position: absolute; top: -5px; right: 5px;
+  background-color: #e0e0e0; color: #444;
+  font-weight: normal; border: none; border-radius: 50%;
+  width: 32px !important; height: 32px !important;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 26px; cursor: pointer; padding: 0 !important;
+  z-index: 10;
+}
+
+/* 상단 고정 헤더: 좌/우 여백 꽉 차게 확장 (음수 마진 사용) */
+.sticky-header {
+  position: sticky; top: 0;
+  background-color: #777777; /* 다크모드일 때 밝은 회색 */
+  z-index: 100; padding: 15px 20px;
+  margin: -20px -20px 20px -20px;
+}
+
+/* 밝은 모드일 때 어두운 회색 */
+body.light-mode .sticky-header { background-color: #333333; }
+
+.top-nav { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; }
+
+.btn-home-style {
+  background: var(--accent-color) !important; color: black !important;
+  font-weight: bold !important; border: none !important; width: auto !important; padding: 8px 18px !important; font-size: 18px !important;
+}
+
+.zoom-controls { display: flex; align-items: center; gap: 10px; }
+/* 그림자 제거 */
+.zoom-label { font-size: 18px; font-weight: bold; color: #ffffff; }
+
+/* 확대 축소 버튼 둥글게 처리 */
+.zoom-btn {
+  width: 55px !important; height: 55px !important;
+  font-size: 36px !important; font-weight: 900 !important;
+  display: flex; align-items: center; justify-content: center;
+  border: none !important; color: #000 !important;
+  border-radius: 50% !important;
+}
+.zoom-btn.plus { background-color: var(--plus-btn-color) !important; }
+.zoom-btn.minus { background-color: var(--minus-btn-color) !important; }
+
+.read-nav { display: flex; gap: 10px; margin-top: 10px; }
+.read-nav select { padding: 10px; font-size: 16px; background: #111; color: white; border: 1px solid #444; }
+
+/* 하단 네비게이션 복구 */
+.bottom-nav { display: flex; gap: 10px; margin: 40px 0 20px 0; padding-top: 20px; border-top: 1px solid #555; }
+.bottom-nav button#btn-prev { background: #333; font-weight: bold; color: white; border: none; }
+.btn-next-yellow { background: var(--accent-color) !important; color: black !important; font-weight: bold !important; border: none !important; }
+
+#bible-content { margin-top: 25px; font-size: var(--base-font-size); padding-bottom: 50px; }
+.verse { margin-bottom: 18px; display: flex; align-items: flex-start; cursor: pointer; padding: 10px; border-radius: 10px; }
+.verse-num { min-width: 45px; color: var(--accent-color); font-weight: bold; font-size: 0.8em; margin-top: 4px; }
+
+/* 라이트 모드 전용 텍스트 가독성 강화 */
+body.light-mode .verse-num { color: var(--plus-btn-color); }
+body.light-mode #bible-content strong { color: var(--plus-btn-color) !important; }
+body.light-mode #bible-content span[style*="#a0a0a0"] { color: #444444 !important; font-weight: bold; }
+
+/* 모드 변경 버튼: 반투명하고 작게 */
+.theme-toggle-wrapper { margin-top: 10px; text-align: center; }
+.theme-btn {
+  width: auto !important; padding: 8px 18px !important; border-radius: 20px !important;
+  font-size: 14px !important; font-weight: normal !important; cursor: pointer;
+  opacity: 0.5; transition: opacity 0.3s;
+}
+.theme-btn:active { opacity: 1; }
+.theme-btn.to-light { background-color: #ffffff !important; color: #000000 !important; border: 1px solid #cccccc !important; }
+.theme-btn.to-dark { background-color: #000000 !important; color: #ffffff !important; border: 1px solid #555555 !important; }

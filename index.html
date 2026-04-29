@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>보리의 성경책</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="dark-mode">
+
+  <div id="search-page" class="page active">
+    <h1 class="main-title">🌾 보리의 성경책</h1>
+    
+    <div id="bookmark-container" class="section-container">
+      <div class="bookmark-ribbon"></div>
+      <div id="bookmark-section" style="position: relative;"></div>
+    </div>
+
+    <div id="selection-container" class="section-container">
+      <div class="form-group">
+        <label>성경책</label>
+        <select id="select-book">
+          <option value="">데이터를 불러오는 중...</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>장</label>
+        <select id="select-chapter">
+          <option value="">성경책부터 선택하세요</option>
+        </select>
+      </div>
+      <button id="btn-open">성경 읽기</button>
+      <div id="error-msg" style="display:none; text-align:center; margin-top:15px; font-size:16px; color:#ddd;">
+        성경책과 장을 <span style="color:var(--accent-color); font-weight:bold;">모두</span> 선택해 주세요
+      </div>
+    </div>
+
+    <div class="theme-toggle-wrapper">
+      <button id="btn-theme-toggle" class="theme-btn">밝은 모드로</button>
+    </div>
+  </div>
+
+  <div id="read-page" class="page">
+    <div class="sticky-header">
+      <div class="top-nav">
+        <button id="btn-home" class="btn-home-style">목록</button>
+        <div class="zoom-controls">
+          <button id="btn-zoom-out" class="zoom-btn minus">-</button>
+          <span class="zoom-label">글자크기</span>
+          <button id="btn-zoom-in" class="zoom-btn plus">+</button>
+        </div>
+      </div>
+      
+      <div class="read-nav">
+        <select id="select-book-read"></select>
+        <select id="select-chapter-read"></select>
+      </div>
+    </div>
+
+    <div id="bible-content"></div>
+
+    <div class="bottom-nav">
+      <button id="btn-prev">이전 장으로</button>
+      <button id="btn-next" class="btn-next-yellow">다음 장으로</button>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
