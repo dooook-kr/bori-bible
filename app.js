@@ -1,17 +1,21 @@
 let bibleData = null;
-let currentVersion = 'basic'; 
+
+// 🌟 1. 상태(State) 중앙 관리 변수: localStorage에서 마지막 기억을 꺼내옵니다.
+let currentVersion = localStorage.getItem('bible_version') || 'basic';
+let currentBook = localStorage.getItem('bible_book') || '';
+let currentChapter = localStorage.getItem('bible_chapter') || '';
 let currentFontSize = parseInt(localStorage.getItem('bible_fontSize')) || 24;
 let isDarkMode = localStorage.getItem('bible_theme') !== 'light';
 
+// 요소 가져오기
 const selectBook = document.getElementById('select-book');
 const selectChapter = document.getElementById('select-chapter');
 const selectBookRead = document.getElementById('select-book-read');
 const selectChapterRead = document.getElementById('select-chapter-read');
-const selectVersionRead = document.getElementById('select-version-read'); // 🌟 추가됨
+const selectVersionRead = document.getElementById('select-version-read');
 const bibleContent = document.getElementById('bible-content');
 const errorMsg = document.getElementById('error-msg');
 const btnThemeToggle = document.getElementById('btn-theme-toggle');
-
 const versionRadios = document.querySelectorAll('input[name="bible-version"]');
 
 const BIBLE_ORDER = [
@@ -25,51 +29,94 @@ const BIBLE_ORDER = [
   "베드로전서", "베드로후서", "요한일서", "요한이서", "요한삼서", "유다서", "요한계시록"
 ];
 
+// 앱 시작 시 실행
 async function init() {
   applyFontSize();
   applyTheme();
-  await loadBibleData(); 
+  // 저장된 상태를 바탕으로 데이터 로드 및 UI 세팅
+  await updateState(currentVersion, currentBook, currentChapter);
   updateBookmarkUI();
 }
 
-async function loadBibleData() {
-  try {
-    const fileName = currentVersion === 'basic' ? 'bible-basic.json' : 'bible-story.json';
-    const response = await fetch(`./data/${fileName}`);
-    if (!response.ok) throw new Error("데이터 로드 실패");
-    bibleData = await response.json();
-    populateBooks();
-  } catch (e) {
-    alert("⚠️ 데이터를 불러올 수 없습니다.\n\n컴퓨터 폴더에서 직접 index.html을 실행하면 브라우저 보안 정책(CORS) 때문에 데이터를 읽지 못합니다. 로컬 웹 서버를 사용하시거나 Github에 올려서 확인해 주세요!");
+// 🌟 2. 완벽한 중앙 통제 센터 (상태 변경, 저장, 통신, UI 동기화 전담)
+async function updateState(newVersion, newBook, newChapter) {
+  const versionChanged = (newVersion !== currentVersion);
+  const bookChanged = (newBook !== currentBook);
+
+  // 상태 업데이트 및 자동 저장
+  currentVersion = newVersion;
+  currentBook = newBook;
+  currentChapter = newChapter;
+  
+  localStorage.setItem('bible_version', currentVersion);
+  localStorage.setItem('bible_book', currentBook);
+  localStorage.setItem('bible_chapter', currentChapter);
+
+  // 방어벽 1: 버전이 바뀌었거나 데이터가 없을 때만 새로 다운로드
+  if (versionChanged || !bibleData) {
+    try {
+      const fileName = currentVersion === 'basic' ? 'bible-basic.json' : 'bible-story.json';
+      const response = await fetch(`./data/${fileName}`);
+      if (!response.ok) throw new Error("데이터 로드 실패");
+      bibleData = await response.json();
+      populateBooks(); // 책 목록 갱신
+    } catch (e) {
+      alert("⚠️ 데이터를 불러올 수 없습니다.\n\n컴퓨터 폴더에서 직접 index.html을 실행하면 브라우저 보안 정책(CORS) 때문에 데이터를 읽지 못합니다. 로컬 웹 서버를 사용하시거나 Github에 올려서 확인해 주세요!");
+      return;
+    }
   }
+
+  // 방어벽 2: 조건 없이 덮어쓰기만 수행하여 무한 루프(메아리) 원천 차단
+  const radio = document.querySelector(`input[name="bible-version"][value="${currentVersion}"]`);
+  if (radio) radio.checked = true;
+  selectVersionRead.value = currentVersion;
+
+  selectBook.value = currentBook;
+  selectBookRead.value = currentBook;
+
+  // 책이 바뀌었거나 버전을 바꿨을 때만 장(Chapter) 목록 갱신
+  if (versionChanged || bookChanged || selectChapter.options.length <= 1) {
+    populateChapters(currentBook, selectChapter, false);
+    populateChapters(currentBook, selectChapterRead, true);
+  }
+
+  selectChapter.value = currentChapter;
+  selectChapterRead.value = currentChapter;
 }
 
-// 🌟 메인 페이지 라디오 버튼 변경 시 동기화
+// 🌟 3. 이벤트 리스너들: 자신의 변화만 updateState에 보고함
 versionRadios.forEach(radio => {
   radio.addEventListener('change', async (e) => {
-    currentVersion = e.target.value;
-    selectVersionRead.value = currentVersion; // 상세페이지 드롭다운도 변경
-    resetSelections();
-    await loadBibleData();
+    await updateState(e.target.value, currentBook, currentChapter);
   });
 });
 
-// 🌟 상세 페이지 버전 드롭다운 변경 시 동기화
-selectVersionRead.onchange = async () => {
-  currentVersion = selectVersionRead.value;
-  // 메인 페이지 라디오 버튼도 변경
-  document.querySelector(`input[name="bible-version"][value="${currentVersion}"]`).checked = true;
-  await loadBibleData();
-  if (selectBookRead.value && selectChapterRead.value) {
-    render('kor', selectBookRead.value, selectChapterRead.value);
-  }
-};
+selectVersionRead.addEventListener('change', async (e) => {
+  await updateState(e.target.value, currentBook, currentChapter);
+  if (currentBook && currentChapter) render(currentBook, currentChapter); // 읽기 화면 즉시 갱신
+});
 
-function resetSelections() {
-  selectBook.value = "";
-  selectChapter.innerHTML = '<option value="">성경책부터 선택하세요</option>';
-}
+selectBook.addEventListener('change', async (e) => {
+  // 메인에서 성경책을 바꾸면 장(Chapter)은 리셋
+  await updateState(currentVersion, e.target.value, '');
+});
 
+selectChapter.addEventListener('change', async (e) => {
+  await updateState(currentVersion, currentBook, e.target.value);
+});
+
+selectBookRead.addEventListener('change', async (e) => {
+  // 읽기 화면에서 성경책을 바꾸면 무조건 1장으로 자동 이동
+  await updateState(currentVersion, e.target.value, '1');
+  render(currentBook, '1');
+});
+
+selectChapterRead.addEventListener('change', async (e) => {
+  await updateState(currentVersion, currentBook, e.target.value);
+  render(currentBook, currentChapter);
+});
+
+// 나머지 일반 기능들
 function applyTheme() {
   if (isDarkMode) {
     document.body.classList.remove('light-mode');
@@ -91,6 +138,7 @@ btnThemeToggle.onclick = () => {
 };
 
 function populateBooks() {
+  if (!bibleData) return;
   const availableBooks = Object.keys(bibleData['kor']);
   const sortedBooks = availableBooks.sort((a, b) => {
     const idxA = BIBLE_ORDER.indexOf(a.normalize('NFC'));
@@ -114,7 +162,7 @@ function populateBooks() {
 
 function populateChapters(bookValue, targetSelect, isReadMode = false) {
   targetSelect.innerHTML = isReadMode ? '' : '<option value="">성경책부터 선택하세요</option>';
-  if (!bookValue) return;
+  if (!bookValue || !bibleData || !bibleData['kor'][bookValue]) return;
   const chapters = Object.keys(bibleData['kor'][bookValue]).sort((a, b) => parseInt(a) - parseInt(b));
   chapters.forEach(ch => {
     const opt = document.createElement('option');
@@ -122,14 +170,6 @@ function populateChapters(bookValue, targetSelect, isReadMode = false) {
     targetSelect.appendChild(opt);
   });
 }
-
-selectBook.onchange = () => populateChapters(selectBook.value, selectChapter);
-selectBookRead.onchange = () => populateChapters(selectBookRead.value, selectChapterRead, true);
-selectChapterRead.onchange = () => {
-  if (selectBookRead.value && selectChapterRead.value) {
-    render('kor', selectBookRead.value, selectChapterRead.value);
-  }
-};
 
 function updateBookmarkUI() {
   const section = document.getElementById('bookmark-section');
@@ -144,7 +184,7 @@ function updateBookmarkUI() {
       <div style="margin-bottom: 10px; font-size: 1.1rem; text-align: center; padding-top:15px; color: var(--text-color);">
         <b>${cleanBook} ${chapter}장 ${verseNum && verseNum !== 'null' ? verseNum + '절' : ''}</b>
       </div>
-      <button class="btn-bookmark-go" onclick="render('kor', '${book}', '${chapter}', '${verseNum}')">
+      <button class="btn-bookmark-go" onclick="render('${book}', '${chapter}', '${verseNum}')">
         이어서 읽기
       </button>
     `;
@@ -166,18 +206,18 @@ function deleteBookmark() {
   }
 }
 
-function render(version, book, chapter, highlightVerse = null) {
-  if (!bibleData['kor'][book] || !bibleData['kor'][book][chapter]) return;
+// 🌟 4. 데이터 렌더링 함수 (호출 시 무조건 최신 상태로 맞춘 뒤 화면을 그립니다)
+async function render(book, chapter, highlightVerse = null) {
+  // 렌더링 전, 책갈피 등의 요인으로 값이 바뀌었을 수 있으므로 상태 강제 갱신
+  await updateState(currentVersion, book, chapter);
+
+  if (!bibleData || !bibleData['kor'][book] || !bibleData['kor'][book][chapter]) return;
   
   errorMsg.style.display = 'none';
-  const data = bibleData[version][book][chapter];
+  const data = bibleData['kor'][book][chapter];
   const cleanBook = book.normalize('NFC');
   
   bibleContent.innerHTML = '';
-  selectBookRead.value = book;
-  populateChapters(book, selectChapterRead, true);
-  selectChapterRead.value = chapter;
-  selectVersionRead.value = currentVersion; // 🌟 현재 버전 표시 동기화
 
   data.forEach(v => {
     const div = document.createElement('div');
@@ -189,12 +229,13 @@ function render(version, book, chapter, highlightVerse = null) {
     
     div.onclick = () => {
       if(!v.num) return;
+      // 책갈피용 저장소는 별도로 관리 (드롭다운과 분리)
       localStorage.setItem('bible_last_book', book);
       localStorage.setItem('bible_last_chapter', chapter);
       localStorage.setItem('bible_last_verse', v.num);
       alert(`책갈피를 끼웠어요\n[ ${cleanBook} | ${chapter}장 ${v.num}절 ]`);
       updateBookmarkUI();
-      render(version, book, chapter, v.num);
+      render(book, chapter, v.num);
     };
 
     const numSpan = v.num ? `<span class="verse-num">${v.num}</span>` : '';
@@ -219,16 +260,18 @@ function updateBottomNav(book, chapter) {
   const btnNext = document.getElementById('btn-next');
 
   btnPrev.style.display = (currentIndex > 0) ? 'block' : 'none';
-  if (currentIndex > 0) btnPrev.onclick = () => render('kor', book, chapters[currentIndex - 1]);
+  if (currentIndex > 0) btnPrev.onclick = () => render(book, chapters[currentIndex - 1]);
 
   btnNext.style.display = (currentIndex < chapters.length - 1) ? 'block' : 'none';
-  if (currentIndex < chapters.length - 1) btnNext.onclick = () => render('kor', book, chapters[currentIndex + 1]);
+  if (currentIndex < chapters.length - 1) btnNext.onclick = () => render(book, chapters[currentIndex + 1]);
 }
 
 document.getElementById('btn-open').onclick = () => {
-  const b = selectBook.value; const c = selectChapter.value;
-  if (b && c) render('kor', b, c);
-  else errorMsg.style.display = 'block';
+  if (currentBook && currentChapter) {
+    render(currentBook, currentChapter);
+  } else {
+    errorMsg.style.display = 'block';
+  }
 };
 
 document.getElementById('btn-home').onclick = () => {
