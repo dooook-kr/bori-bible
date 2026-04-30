@@ -7,11 +7,11 @@ const selectBook = document.getElementById('select-book');
 const selectChapter = document.getElementById('select-chapter');
 const selectBookRead = document.getElementById('select-book-read');
 const selectChapterRead = document.getElementById('select-chapter-read');
+const selectVersionRead = document.getElementById('select-version-read'); // 🌟 추가됨
 const bibleContent = document.getElementById('bible-content');
 const errorMsg = document.getElementById('error-msg');
 const btnThemeToggle = document.getElementById('btn-theme-toggle');
 
-// 🌟 새로 추가: 라디오 버튼 가져오기
 const versionRadios = document.querySelectorAll('input[name="bible-version"]');
 
 const BIBLE_ORDER = [
@@ -40,21 +40,30 @@ async function loadBibleData() {
     bibleData = await response.json();
     populateBooks();
   } catch (e) {
-    // 🌟 로컬 테스트 에러에 대한 친절한 경고창
     alert("⚠️ 데이터를 불러올 수 없습니다.\n\n컴퓨터 폴더에서 직접 index.html을 실행하면 브라우저 보안 정책(CORS) 때문에 데이터를 읽지 못합니다. 로컬 웹 서버를 사용하시거나 Github에 올려서 확인해 주세요!");
-    selectBook.innerHTML = '<option value="">데이터 오류 (서버 필요)</option>';
   }
 }
 
-// 🌟 라디오 버튼 클릭(변경) 이벤트 추가
+// 🌟 메인 페이지 라디오 버튼 변경 시 동기화
 versionRadios.forEach(radio => {
   radio.addEventListener('change', async (e) => {
     currentVersion = e.target.value;
+    selectVersionRead.value = currentVersion; // 상세페이지 드롭다운도 변경
     resetSelections();
-    selectBook.innerHTML = '<option value="">데이터를 불러오는 중...</option>';
     await loadBibleData();
   });
 });
+
+// 🌟 상세 페이지 버전 드롭다운 변경 시 동기화
+selectVersionRead.onchange = async () => {
+  currentVersion = selectVersionRead.value;
+  // 메인 페이지 라디오 버튼도 변경
+  document.querySelector(`input[name="bible-version"][value="${currentVersion}"]`).checked = true;
+  await loadBibleData();
+  if (selectBookRead.value && selectChapterRead.value) {
+    render('kor', selectBookRead.value, selectChapterRead.value);
+  }
+};
 
 function resetSelections() {
   selectBook.value = "";
@@ -168,6 +177,7 @@ function render(version, book, chapter, highlightVerse = null) {
   selectBookRead.value = book;
   populateChapters(book, selectChapterRead, true);
   selectChapterRead.value = chapter;
+  selectVersionRead.value = currentVersion; // 🌟 현재 버전 표시 동기화
 
   data.forEach(v => {
     const div = document.createElement('div');

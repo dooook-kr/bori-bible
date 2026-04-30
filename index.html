@@ -19,7 +19,7 @@
   <meta name="twitter:description" content="글씨는 더 크게, 내용은 더 쉽게. 부모님을 위해 만든 모바일 성경책">
   <meta name="twitter:image" content="https://dooook-kr.github.io/bori-bible/og-image.jpg">
 
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=3">
 </head>
 
 <body class="dark-mode">
@@ -33,13 +33,11 @@
     </div>
 
     <div id="selection-container" class="section-container">
-      <!-- 🌟 추가됨: 라디오 버튼 영역 -->
       <div class="version-radio-group">
         <label><input type="radio" name="bible-version" value="basic" checked> 일반형</label>
         <label><input type="radio" name="bible-version" value="story"> 스토리형</label>
       </div>
 
-      <!-- 🌟 수정됨: 한 줄 배치용 폼 그룹 -->
       <div class="form-group">
         <label>성경책</label>
         <select id="select-book">
@@ -75,6 +73,11 @@
       </div>
 
       <div class="read-nav">
+        <!-- 🌟 상세 페이지 버전 선택 드롭다운 추가 -->
+        <select id="select-version-read">
+          <option value="basic">일반형</option>
+          <option value="story">스토리형</option>
+        </select>
         <select id="select-book-read"></select>
         <select id="select-chapter-read"></select>
       </div>
