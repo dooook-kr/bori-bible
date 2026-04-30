@@ -29,18 +29,17 @@ body {
 .page.active { display: block; }
 
 .main-title {
-  text-align: center; margin-top: 30px; margin-bottom: 30px; 
+  text-align: center; margin-top: 20px; margin-bottom: 25px; /* 높이 약간 축소 */
   color: var(--accent-color); font-size: 1.8rem;
 }
 
-/* 라이트 모드일 때 메인 타이틀 색상을 더 어두운 초록색으로 변경 */
 body.light-mode .main-title { color: #2e7d32; }
 
 .section-container {
   background-color: var(--container-bg);
-  padding: 25px 20px;
-  border-radius: 20px;
-  margin-bottom: 30px;
+  padding: 20px 15px; /* 전체 패딩 줄임 (콤팩트) */
+  border-radius: 15px; /* 테두리 둥글기 약간 축소 */
+  margin-bottom: 20px; /* 섹션 간격 축소 */
   position: relative;
 }
 
@@ -55,19 +54,39 @@ body.light-mode .main-title { color: #2e7d32; }
   z-index: 1;
 }
 
-.form-group { margin-bottom: 20px; }
-label { display: block; margin-bottom: 8px; font-weight: bold; color: #777; font-size: 1rem; }
+/* 🌟 라벨과 셀렉트 박스 한 줄 배치 */
+.form-group { 
+  display: flex; 
+  align-items: center; 
+  gap: 12px; 
+  margin-bottom: 15px; 
+}
 
+label { 
+  margin-bottom: 0; /* 기존 8px 띄움 제거 */
+  font-weight: bold; 
+  color: #777; 
+  font-size: 1rem; 
+  min-width: 55px; /* 라벨 너비를 맞춰서 드롭다운 시작선 일치 */
+}
+
+/* 🌟 드롭다운 버튼 세로 길이(콤팩트) 축소 */
 select, button {
-  width: 100%; padding: 18px;
-  font-size: 20px; border-radius: 12px;
+  width: 100%; 
+  padding: 12px; /* 18px -> 12px로 축소 */
+  font-size: 18px; /* 20px -> 18px로 축소 */
+  border-radius: 10px;
   background: var(--container-bg); color: var(--text-color); border: 1px solid #555;
   appearance: none;
 }
 
+/* 🌟 성경읽기 버튼 가로 50%, 가운데 정렬 */
 button#btn-open {
   background: var(--accent-color); color: black;
-  font-weight: bold; border: none; margin-top: 10px;
+  font-weight: bold; border: none; 
+  width: 50%; /* 가로 반 사이즈 */
+  margin: 15px auto 0 auto; /* 가운데 정렬 */
+  display: block; 
 }
 
 .btn-bookmark-go {
@@ -78,7 +97,6 @@ button#btn-open {
   margin-top: 10px;
 }
 
-/* X 버튼 옅은 회색, 위로 이동, 원 크기 축소 */
 .del-bookmark {
   position: absolute; top: -5px; right: 5px;
   background-color: #e0e0e0; color: #444;
@@ -89,15 +107,13 @@ button#btn-open {
   z-index: 10;
 }
 
-/* 상단 고정 헤더: 좌/우 여백 꽉 차게 확장 (음수 마진 사용) */
 .sticky-header {
   position: sticky; top: 0;
-  background-color: #777777; /* 다크모드일 때 밝은 회색 */
+  background-color: #777777;
   z-index: 100; padding: 15px 20px;
   margin: -20px -20px 20px -20px;
 }
 
-/* 밝은 모드일 때 어두운 회색 */
 body.light-mode .sticky-header { background-color: #333333; }
 
 .top-nav { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; }
@@ -108,10 +124,8 @@ body.light-mode .sticky-header { background-color: #333333; }
 }
 
 .zoom-controls { display: flex; align-items: center; gap: 10px; }
-/* 그림자 제거 */
 .zoom-label { font-size: 18px; font-weight: bold; color: #ffffff; }
 
-/* 확대 축소 버튼 둥글게 처리 */
 .zoom-btn {
   width: 55px !important; height: 55px !important;
   font-size: 36px !important; font-weight: 900 !important;
@@ -125,7 +139,6 @@ body.light-mode .sticky-header { background-color: #333333; }
 .read-nav { display: flex; gap: 10px; margin-top: 10px; }
 .read-nav select { padding: 10px; font-size: 16px; background: #111; color: white; border: 1px solid #444; }
 
-/* 하단 네비게이션 복구 */
 .bottom-nav { display: flex; gap: 10px; margin: 40px 0 20px 0; padding-top: 20px; border-top: 1px solid #555; }
 .bottom-nav button#btn-prev { background: #333; font-weight: bold; color: white; border: none; }
 .btn-next-yellow { background: var(--accent-color) !important; color: black !important; font-weight: bold !important; border: none !important; }
@@ -134,12 +147,10 @@ body.light-mode .sticky-header { background-color: #333333; }
 .verse { margin-bottom: 18px; display: flex; align-items: flex-start; cursor: pointer; padding: 10px; border-radius: 10px; }
 .verse-num { min-width: 45px; color: var(--accent-color); font-weight: bold; font-size: 0.8em; margin-top: 4px; }
 
-/* 라이트 모드 전용 텍스트 가독성 강화 */
 body.light-mode .verse-num { color: var(--plus-btn-color); }
 body.light-mode #bible-content strong { color: var(--plus-btn-color) !important; }
 body.light-mode #bible-content span[style*="#a0a0a0"] { color: #444444 !important; font-weight: bold; }
 
-/* 모드 변경 버튼: 반투명하고 작게 */
 .theme-toggle-wrapper { margin-top: 10px; text-align: center; }
 .theme-btn {
   width: auto !important; padding: 8px 18px !important; border-radius: 20px !important;
@@ -149,3 +160,34 @@ body.light-mode #bible-content span[style*="#a0a0a0"] { color: #444444 !importan
 .theme-btn:active { opacity: 1; }
 .theme-btn.to-light { background-color: #ffffff !important; color: #000000 !important; border: 1px solid #cccccc !important; }
 .theme-btn.to-dark { background-color: #000000 !important; color: #ffffff !important; border: 1px solid #555555 !important; }
+
+/* 🌟 라디오 버튼 영역 스타일 */
+.version-radio-group {
+  display: flex;
+  justify-content: center;
+  gap: 25px;
+  margin-bottom: 18px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #333; /* 아랫부분과 구분선 추가 */
+}
+
+body.light-mode .version-radio-group { border-bottom: 1px solid #eee; }
+
+.version-radio-group label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  color: var(--text-color);
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.version-radio-group input[type="radio"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent-color);
+  margin: 0;
+  cursor: pointer;
+}

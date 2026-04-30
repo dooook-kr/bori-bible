@@ -1,4 +1,5 @@
 let bibleData = null;
+let currentVersion = 'basic'; 
 let currentFontSize = parseInt(localStorage.getItem('bible_fontSize')) || 24;
 let isDarkMode = localStorage.getItem('bible_theme') !== 'light';
 
@@ -9,6 +10,9 @@ const selectChapterRead = document.getElementById('select-chapter-read');
 const bibleContent = document.getElementById('bible-content');
 const errorMsg = document.getElementById('error-msg');
 const btnThemeToggle = document.getElementById('btn-theme-toggle');
+
+// 🌟 새로 추가: 라디오 버튼 가져오기
+const versionRadios = document.querySelectorAll('input[name="bible-version"]');
 
 const BIBLE_ORDER = [
   "창세기", "출애굽기", "레위기", "민수기", "신명기", "여호수아", "사사기", "룻기", 
@@ -24,15 +28,37 @@ const BIBLE_ORDER = [
 async function init() {
   applyFontSize();
   applyTheme();
+  await loadBibleData(); 
+  updateBookmarkUI();
+}
+
+async function loadBibleData() {
   try {
-    const response = await fetch('./data/bible.json');
+    const fileName = currentVersion === 'basic' ? 'bible-basic.json' : 'bible-story.json';
+    const response = await fetch(`./data/${fileName}`);
     if (!response.ok) throw new Error("데이터 로드 실패");
     bibleData = await response.json();
     populateBooks();
-    updateBookmarkUI();
   } catch (e) {
-    alert("데이터 파일을 찾을 수 없습니다.");
+    // 🌟 로컬 테스트 에러에 대한 친절한 경고창
+    alert("⚠️ 데이터를 불러올 수 없습니다.\n\n컴퓨터 폴더에서 직접 index.html을 실행하면 브라우저 보안 정책(CORS) 때문에 데이터를 읽지 못합니다. 로컬 웹 서버를 사용하시거나 Github에 올려서 확인해 주세요!");
+    selectBook.innerHTML = '<option value="">데이터 오류 (서버 필요)</option>';
   }
+}
+
+// 🌟 라디오 버튼 클릭(변경) 이벤트 추가
+versionRadios.forEach(radio => {
+  radio.addEventListener('change', async (e) => {
+    currentVersion = e.target.value;
+    resetSelections();
+    selectBook.innerHTML = '<option value="">데이터를 불러오는 중...</option>';
+    await loadBibleData();
+  });
+});
+
+function resetSelections() {
+  selectBook.value = "";
+  selectChapter.innerHTML = '<option value="">성경책부터 선택하세요</option>';
 }
 
 function applyTheme() {
